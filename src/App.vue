@@ -1,26 +1,31 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div id="app">
+    <div style="height: 500px; width: 500px; border: 1px solid red; position: relative;">
+      <vue-draggable-resizable :w="400" :h="400" :parent="true" v-for="i in blocks" :key="i"/>
+    </div>
+    <button @click="blocks++"></button>
+  </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import VueDraggableResizable from './components/vue-draggable-resizable'
+import './components/vue-draggable-resizable.css'
 
 export default {
-  name: 'App',
+  name: 'app',
   components: {
-    HelloWorld
+    VueDraggableResizable
+  },
+  data() {
+    return {
+      blocks: 1
+    }
   }
 }
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+  .vdr {
+    border: 1px dashed black;
+  }
 </style>
