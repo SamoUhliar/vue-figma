@@ -21,9 +21,9 @@
       @touchstart.stop.prevent="handleTouchDown(handle, $event)"
     >
     </div>
-    <div v-if="inputActive" v-html="html"></div>
-    <div v-if="isText && !inputActive">{{html}}</div>
-    <div class="htmlHolder" v-else-if="!inputActive" v-html="html"></div>
+    <div style="width:100%;height:100%" v-if="inputActive" v-html="html"></div>
+    <div style="width:100%;height:100%" v-if="isText && !inputActive">{{html}}</div>
+    <div style="width:100%;height:100%" class="htmlHolder" v-else-if="!inputActive" v-html="html"></div>
   </div>
 </template>
 
@@ -346,13 +346,13 @@ export default {
     getParentSize () {
       if (this.parent) {
         const style = window.getComputedStyle(this.$el.parentNode, null)
-
+          console.log(parseInt(style.getPropertyValue('width'), 10))
+          console.log(parseInt(style.getPropertyValue('height'), 10))
         return [
           parseInt(style.getPropertyValue('width'), 10),
           parseInt(style.getPropertyValue('height'), 10)
         ]
       }
-
       return [null, null]
     },
     elementTouchDown (e) {
@@ -438,6 +438,9 @@ export default {
         }
 
         removeEvent(document.documentElement, eventsFor.move, this.handleResize)
+
+        //Grizzly code
+        this.showHtml()
       }
 
       this.resetBoundsAndMouseState()
@@ -802,7 +805,7 @@ export default {
         before = '='
         console.log(this.isText)
       }
-      this.html = '<textarea id="input" >' + before + this.html + '</textarea>'
+      this.html = '<textarea id="input" style="width: 100%;height: 100%;resize: none;" >' + before + this.html + '</textarea>'
     },
     showHtml () {
       var ret = document.getElementById('input').value
@@ -939,7 +942,7 @@ export default {
 
       this.changeHeight(val)
     }
-  }
+  },
 }
 </script>
 <style>
