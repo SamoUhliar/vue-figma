@@ -43,6 +43,9 @@ export default {
 </script>
 
 <style>
+  body {
+    background-color: #f2f2f2 !important;
+  } 
   .vdr {
     border: 1px dashed black;
   }
