@@ -231,7 +231,11 @@ export default {
     onResize: {
       type: Function,
       default: () => true
-    }
+    },
+    //Grizzly Code
+    id: {
+      type: Number,
+    } 
   },
 
   data () {
@@ -805,10 +809,10 @@ export default {
         before = '='
         console.log(this.isText)
       }
-      this.html = '<textarea id="input" style="width: 100%;height: 100%;resize: none;" >' + before + this.html + '</textarea>'
+      this.html = '<textarea id="input'+ this.id +'" style="width: 100%;height: 100%;resize: none;" >' + before + this.html + '</textarea>'
     },
     showHtml () {
-      var ret = document.getElementById('input').value
+      var ret = document.getElementById('input'+this.id).value
       
       this.isText = true
       if(ret.charAt(0) == '=') {

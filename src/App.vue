@@ -1,7 +1,10 @@
 <template>
   <div>
-    <div id="canvas" style="border: 1px solid red; position: relative;">
-      <vue-draggable-resizable :w="400" :h="400" :parent="true" v-for="i in blocks" :key="i"/>
+    <div class="toolBar">
+      <button @click="this.blocks.push({'id':this.blocks.length})">+</button>
+    </div>
+    <div id="canvas" style="position: relative;">
+      <vue-draggable-resizable :w="400" :h="400" :parent="false" :id="i.id" v-for="i in blocks" :key="i.id"/>
     </div>
   </div>
 </template>
@@ -17,13 +20,14 @@ export default {
   },
   data() {
     return {
-      blocks: 0,
+      blocks: [{'id':0,}],
     }
   },
   mounted() {
     window.addEventListener('resize', this.handleResize);
     this.handleResize();
-    this.blocks = 1
+    this.blocks = [{'id':0,}]
+    console.log(this.blocks)
   },
   unmounted() {
     window.removeEventListener('resize', this.handleResize);
@@ -44,5 +48,17 @@ export default {
   }
   #canvas {
     margin: auto;
+  }
+  .toolBar{
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    z-index: 100;
+  }
+  .toolBar button{
+    margin: 20px;
+    padding: 15px;
+    font-size: 15px;
+    border: 1px solid black;
   }
 </style>
