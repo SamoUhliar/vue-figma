@@ -7,7 +7,8 @@
       [classNameResizing]: resizing,
       [classNameDraggable]: draggable,
       [classNameResizable]: resizable
-    }, className]"
+    }, className,
+    ]"
     @mousedown="elementMouseDown"
     @touchstart="elementTouchDown"
     @dblclick="buttonPress"
@@ -22,7 +23,7 @@
     >
     </div>
     <div style="width:100%;height:100%" v-if="inputActive" v-html="html"></div>
-    <div style="width:100%;height:100%" v-if="isText && !inputActive">{{html}}</div>
+    <div style="width:100%;height:100%;white-space: pre-wrap;" v-if="isText && !inputActive">{{html}}</div>
     <div style="width:100%;height:100%" class="htmlHolder" v-else-if="!inputActive" v-html="html"></div>
   </div>
 </template>
@@ -233,7 +234,7 @@ export default {
       default: () => true
     },
     //Grizzly Code
-    id: {
+    idElement: {
       type: Number,
     } 
   },
@@ -415,6 +416,9 @@ export default {
 
         addEvent(document.documentElement, eventsFor.move, this.move)
         addEvent(document.documentElement, eventsFor.stop, this.handleUp)
+
+        localStorage.selected = this.idElement
+        this.$emit('showDelete', true)
       }
     },
     calcDragLimits () {
@@ -809,19 +813,27 @@ export default {
         before = '='
         console.log(this.isText)
       }
-      this.html = '<textarea id="input'+ this.id +'" style="width: 100%;height: 100%;resize: none;" >' + before + this.html + '</textarea>'
+      this.html = '<textarea id="input'+ this.idElement +'" style="width: 100%;height: 100%;resize: none;" >' + before + this.html + '</textarea>'
     },
     showHtml () {
-      var ret = document.getElementById('input'+this.id).value
-      
-      this.isText = true
-      if(ret.charAt(0) == '=') {
-        ret = ret.substring(1)
-        console.log('lol')
-        this.isText = false
+      if(localStorage.selected == this.idElement){
+        var input = document.getElementById('input'+this.idElement)
+        var ret = null
+
+        if(input != null) {
+          ret = input.value
+          this.isText = true
+
+          if(ret.charAt(0) == '=') {
+            ret = ret.substring(1)
+            console.log('lol')
+            this.isText = false
+          }
+          this.html = ret
+        }
+
+        setTimeout(() => {this.$emit('showDelete', false)}, 100)
       }
-      
-      this.html = ret
     }
   },
   computed: {

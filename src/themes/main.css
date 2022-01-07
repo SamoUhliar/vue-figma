@@ -1,0 +1,13 @@
+.element {
+    background-color: white !important;
+    border:none !important;
+}
+.active {
+    border: 1px solid blue !important;
+}
+.handle {
+    border-radius: 25px !important;
+    width: 15px;
+    height: 15px;
+    border: 1px solid blue !important;
+}

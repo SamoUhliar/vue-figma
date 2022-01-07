@@ -1,10 +1,11 @@
-<template>
+<template> 
   <div>
     <div class="toolBar">
+      <button @click="deleteElement" v-if="showDelete == true">X</button>
       <button @click="this.blocks.push({'id':this.blocks.length})">+</button>
     </div>
     <div id="canvas" style="position: relative;">
-      <vue-draggable-resizable :w="400" :h="400" :parent="false" :id="i.id" v-for="i in blocks" :key="i.id"/>
+      <vue-draggable-resizable class="element" @showDelete="updateparent" :w="400" :h="400" :parent="false" :id="i.id" :idElement="i.id" :handles="['tr','tl','br','bl']" v-for="i in blocks" :key="i.id"/>
     </div>
   </div>
 </template>
@@ -12,6 +13,7 @@
 <script>
 import VueDraggableResizable from './vendor/vue-draggable-resizable'
 import './vendor/vue-draggable-resizable.css'
+import './themes/main.css'
 
 export default {
   name: 'app',
@@ -21,13 +23,16 @@ export default {
   data() {
     return {
       blocks: [{'id':0,}],
+      showDelete: false
     }
   },
   mounted() {
+    localStorage.selected = -1
+
     window.addEventListener('resize', this.handleResize);
     this.handleResize();
+
     this.blocks = [{'id':0,}]
-    console.log(this.blocks)
   },
   unmounted() {
     window.removeEventListener('resize', this.handleResize);
@@ -36,9 +41,16 @@ export default {
     handleResize() {
       document.getElementById('canvas').style.width = (window.innerWidth-20)+'px';
       document.getElementById('canvas').style.height = (window.innerHeight-20)+'px';
-      console.log('d')
+    },
+    deleteElement() {
+      var element = document.getElementById(localStorage.selected)
+      element.remove()
+      this.showDelete = false
+    },
+    updateparent(variable) {
+        this.showDelete = variable
     }
-  }
+  },
 }
 </script>
 
