@@ -2,18 +2,17 @@
   <div>
     <div class="toolBar">
       <button @click="deleteElement" v-if="showDelete == true">X</button>
-      <button @click="this.blocks.push({'id':this.blocks.length})">+</button>
+      <button @click="addBlock('code/text')">html/text</button>
+      <button @click="addBlock('LuckySheet')">LuckySheet</button>
+      <button @click="addBlock('JScode')">JS</button>
     </div>
     <div id="canvas" style="position: relative;">
-      <vue-draggable-resizable id="luckysheet" class="element" @showDelete="updateparent" :w="400" :h="400" :parent="false" :handles="['tr','tl','br','bl']"/>
-      <vue-draggable-resizable class="element" @showDelete="updateparent" :w="400" :h="400" :parent="false" :id="i.id" :idElement="i.id" :handles="['tr','tl','br','bl']" v-for="i in blocks" :key="i.id"/>
+      <vue-draggable-resizable class="element" @showDelete="updateparent" :w="400" :h="400" :parent="false" :type="i.type" :id="i.id" :idElement="i.id" :handles="['tr','tl','br','bl']" v-for="i in blocks" :key="i.id"/>
     </div>
   </div>
-  <HelloWorld/>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
 import VueDraggableResizable from './vendor/vue-draggable-resizable'
 import './vendor/vue-draggable-resizable.css'
 import './themes/main.css'
@@ -22,26 +21,18 @@ export default {
   name: 'app',
   components: {
     VueDraggableResizable,
-    HelloWorld
   },
   data() {
     return {
-      blocks: [
-        {'id':0,},
-        {'id':1,},
-      ],
+      blocks: [],
       showDelete: false,
+      nextId: 0,
     }
   },
   mounted() {
     localStorage.selected = -1
-
     window.addEventListener('resize', this.handleResize);
     this.handleResize();
-
-    this.blocks = [{'id':0,}]
-
-    
   },
   unmounted() {
     window.removeEventListener('resize', this.handleResize);
@@ -56,6 +47,10 @@ export default {
     },
     deleteElement() {
       this.blocks.splice(localStorage.selected,1)
+    },
+    addBlock(typeText){
+      this.nextId ++
+      this.blocks.push({'id':this.blocks.length,'type':typeText})
     }
   },
 }

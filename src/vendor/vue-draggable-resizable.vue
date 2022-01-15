@@ -22,13 +22,24 @@
       @touchstart.stop.prevent="handleTouchDown(handle, $event)"
     >
     </div>
-    <div style="width:100%;height:100%" v-if="inputActive" v-html="html"></div>
-    <div style="width:100%;height:100%;white-space: pre-wrap;" v-if="isText && !inputActive">{{html}}</div>
-    <div style="width:100%;height:100%" class="htmlHolder" v-else-if="!inputActive" v-html="html"></div>
+    <div v-if="type == 'code/text'" style="width:100%;height:100%">
+      <div style="width:100%;height:100%" v-if="inputActive" v-html="html"></div>
+      <div style="width:100%;height:100%;white-space: pre-wrap;" v-if="isText && !inputActive">{{html}}</div>
+      <div style="width:100%;height:100%" class="htmlHolder" v-else-if="!inputActive" v-html="html"></div>
+    </div>
+    <div v-if="type == 'LuckySheet'" style="width:100%;height:100%">
+      <div :id="'sheet'+idBlock" style="margin:0px;padding:0px;position:absolute;width:100%;height:100%;left: 0px;top: 0px;"></div>
+    </div>
+    <div v-if="type == 'JScode'" style="width:100%;height:100%">
+      <textarea :id="'js'+idBlock" style="width:100%;height:20%"/>
+      <button @click="runCode">RUN</button>
+      <div v-html="jsReturn" />
+    </div>
   </div>
 </template>
 
 <script>
+import LuckyExcel from 'luckyexcel'
 import { matchesSelectorToParentElements, getComputedSize, addEvent, removeEvent } from '../utils/dom'
 import { computeWidth, computeHeight, restrictToBounds, snapToGrid } from '../utils/fns'
 
@@ -236,7 +247,10 @@ export default {
     //Grizzly Code
     idElement: {
       type: Number,
-    } 
+    },
+    type: {
+      type: String,
+    },
   },
 
   data () {
@@ -271,7 +285,22 @@ export default {
 
       html: '<',
       inputActive: false,
-      isText: false
+      isText: false,
+      selected:"",
+      options: [
+        { text: 'Money Manager.xlsx', value: 'https://minio.cnbabylon.com/public/luckysheet/money-manager-2.xlsx' },
+        { text: 'Activity costs tracker.xlsx', value: 'https://minio.cnbabylon.com/public/luckysheet/Activity%20costs%20tracker.xlsx' },
+        { text: 'House cleaning checklist.xlsx', value: 'https://minio.cnbabylon.com/public/luckysheet/House%20cleaning%20checklist.xlsx' },
+        { text: 'Student assignment planner.xlsx', value: 'https://minio.cnbabylon.com/public/luckysheet/Student%20assignment%20planner.xlsx' },
+        { text: 'Credit card tracker.xlsx', value: 'https://minio.cnbabylon.com/public/luckysheet/Credit%20card%20tracker.xlsx' },
+        { text: 'Blue timesheet.xlsx', value: 'https://minio.cnbabylon.com/public/luckysheet/Blue%20timesheet.xlsx' },
+        { text: 'Student calendar (Mon).xlsx', value: 'https://minio.cnbabylon.com/public/luckysheet/Student%20calendar%20%28Mon%29.xlsx' },
+        { text: 'Blue mileage and expense report.xlsx', value: 'https://minio.cnbabylon.com/public/luckysheet/Blue%20mileage%20and%20expense%20report.xlsx' },
+      ],
+      isMaskShow: false,
+      idBlock: 0, 
+      jsReturn: undefined,
+      sheetIsLoad: false,
     }
   },
 
@@ -282,6 +311,8 @@ export default {
     if (this.maxHeight && this.minHeight > this.maxHeight) console.warn('[Vdr warn]: Invalid prop: minHeight cannot be greater than maxHeight')
 
     this.resetBoundsAndMouseState()
+
+    this.idBlock = this.$parent.nextId;
   },
   mounted: function () {
     if (!this.enableNativeDrag) {
@@ -311,6 +342,12 @@ export default {
     addEvent(document.documentElement, 'touchend touchcancel', this.deselect)
 
     addEvent(window, 'resize', this.checkParentSize)
+  },
+  beforeUpdate(){
+    if(this.type == 'LuckySheet' && !this.sheetIsLoad){
+      this.createSheet()
+      this.sheetIsLoad = true
+    }
   },
   beforeUnmount: function () {
     removeEvent(document.documentElement, 'mousedown', this.deselect)
@@ -834,6 +871,94 @@ export default {
 
         setTimeout(() => {this.$emit('showDelete', false)}, 100)
       }
+    },
+    runCode() {
+      let input = document.getElementById('js'+this.idBlock).value
+      let ret = eval(input)
+      this.jsReturn = ret
+    },
+    createSheet(){
+      let id = this.$parent.nextId;
+      var options = {
+        container: 'sheet' + id //luckysheet is the container id
+      }
+      console.log(options.container);
+      luckysheet.create(options)
+    },
+    uploadExcel(evt){
+        const files = evt.target.files;
+        if(files==null || files.length==0){
+            alert("No files wait for import");
+            return;
+        }
+
+        let name = files[0].name;
+        let suffixArr = name.split("."), suffix = suffixArr[suffixArr.length-1];
+        if(suffix!="xlsx"){
+            alert("Currently only supports the import of xlsx files");
+            return;
+        }
+        LuckyExcel.transformExcelToLucky(files[0], function(exportJson, luckysheetfile){
+            
+            if(exportJson.sheets==null || exportJson.sheets.length==0){
+                alert("Failed to read the content of the excel file, currently does not support xls files!");
+                return;
+            }
+            window.luckysheet.destroy();
+            
+            window.luckysheet.create({
+                container: 'luckysheet', //luckysheet is the container id
+                showinfobar:false,
+                data:exportJson.sheets,
+                title:exportJson.info.name,
+                userInfo:exportJson.info.name.creator
+            });
+        });
+    },
+    selectExcel(evt){
+        const value = this.selected;
+        const name = evt.target.options[evt.target.selectedIndex].innerText;
+        
+        if(value==""){
+            return;
+        }
+        this.isMaskShow = true;
+
+        LuckyExcel.transformExcelToLuckyByUrl(value, name, (exportJson, luckysheetfile) => {
+            
+            if(exportJson.sheets==null || exportJson.sheets.length==0){
+                alert("Failed to read the content of the excel file, currently does not support xls files!");
+                return;
+            }
+            
+            this.isMaskShow = false;
+            window.luckysheet.destroy();
+            
+            window.luckysheet.create({
+                container: 'luckysheet', //luckysheet is the container id
+                showinfobar:false,
+                data:exportJson.sheets,
+                title:exportJson.info.name,
+                userInfo:exportJson.info.name.creator
+            });
+        });
+    },
+    downloadExcel(){
+          const value = this.selected;
+
+          if(value.length==0){
+              alert("Please select a demo file");
+              return;
+          }
+
+          var elemIF = document.getElementById("Lucky-download-frame");
+          if(elemIF==null){
+              elemIF = document.createElement("iframe");
+              elemIF.style.display = "none";
+              elemIF.id = "Lucky-download-frame";
+              document.body.appendChild(elemIF);
+          }
+          elemIF.src = value;
     }
   },
   computed: {
