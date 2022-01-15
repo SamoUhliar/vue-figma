@@ -22,6 +22,7 @@ import '@ionic/vue/css/display.css';
 /* Theme variables */
 import './vendor/variables.css';
 
+
 const app = createApp(App).use(IonicVue).mount('#app')
 
 Object.keys(IonComponents).forEach(key => {

@@ -269,7 +269,7 @@ export default {
       * GRIZZLY CODE
       */
 
-      html: '<h1>If it works dont touch it!!!</h1>',
+      html: '<',
       inputActive: false,
       isText: false
     }
