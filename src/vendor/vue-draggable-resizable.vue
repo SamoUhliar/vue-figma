@@ -22,21 +22,14 @@
       @touchstart.stop.prevent="handleTouchDown(handle, $event)"
     >
     </div>
-    <div v-html="html">
-      
-    </div>
+    <div style="width:100%;height:100%" v-if="inputActive" v-html="html"></div>
+    <div style="width:100%;height:100%;white-space: pre-wrap;" v-if="isText && !inputActive">{{html}}</div>
+    <div style="width:100%;height:100%" class="htmlHolder" v-else-if="!inputActive" v-html="html"></div>
   </div>
 </template>
 
 <script>
 import CodeText from '@/components/CodeText'
-/*
-<!--
-      <div style="width:100%;height:100%" v-if="inputActive" v-html="html"></div>
-      <div style="width:100%;height:100%;white-space: pre-wrap;" v-if="isText && !inputActive">{{html}}</div>
-      <div style="width:100%;height:100%" class="htmlHolder" v-else-if="!inputActive" v-html="html"></div>
-      -->
-*/
 import LuckyExcel from 'luckyexcel'
 import { matchesSelectorToParentElements, getComputedSize, addEvent, removeEvent } from '../utils/dom'
 import { computeWidth, computeHeight, restrictToBounds, snapToGrid } from '../utils/fns'
@@ -844,7 +837,6 @@ export default {
       removeEvent(document.documentElement, eventsFor.move, this.handleResize)
     },
     // GRIZZLY CODE
-    /*
     buttonPress () {
       if (this.inputActive) {
         this.inputActive = false
@@ -882,7 +874,6 @@ export default {
         setTimeout(() => {this.$emit('showDelete', false)}, 100)
       }
     },
-    */
     createSheet(){
       let id = this.$parent.nextId;
       var options = {
