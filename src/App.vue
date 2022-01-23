@@ -2,17 +2,18 @@
   <div>
     <div class="toolBar">
       <button @click="deleteElement" v-if="showDelete == true">X</button>
-      <button @click="addBlock('code/text')">html/text</button>
-      <button @click="addBlock('LuckySheet')">LuckySheet</button>
-      <button @click="addBlock('JScode')">JS</button>
+      <button @click="addBlock('<code-text></code-text>')">html/text</button>
+      <button @click="addBlock('<LuckySheet/>')">LuckySheet</button>
+      <button @click="addBlock('<JScode/>')">JS</button>
     </div>
     <div id="canvas" style="position: relative;">
-      <vue-draggable-resizable class="element" @showDelete="updateparent" :w="400" :h="400" :parent="false" :type="i.type" :id="i.id" :idElement="i.id" :handles="['tr','tl','br','bl']" v-for="i in blocks" :key="i.id"/>
+      <vue-draggable-resizable class="element" @showDelete="updateparent" :w="400" :h="400" :parent="false" :htmlInput="i.type" :id="i.id" :idElement="i.id" :handles="['tr','tl','br','bl']" v-for="i in blocks" :key="i.id"/>
     </div>
   </div>
 </template>
 
 <script>
+import CodeText from '@/components/CodeText'
 import VueDraggableResizable from './vendor/vue-draggable-resizable'
 import './vendor/vue-draggable-resizable.css'
 import './themes/main.css'
@@ -21,6 +22,7 @@ export default {
   name: 'app',
   components: {
     VueDraggableResizable,
+    CodeText,
   },
   data() {
     return {

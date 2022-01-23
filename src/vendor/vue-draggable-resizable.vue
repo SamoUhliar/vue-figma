@@ -22,23 +22,21 @@
       @touchstart.stop.prevent="handleTouchDown(handle, $event)"
     >
     </div>
-    <div v-if="type == 'code/text'" style="width:100%;height:100%">
-      <div style="width:100%;height:100%" v-if="inputActive" v-html="html"></div>
-      <div style="width:100%;height:100%;white-space: pre-wrap;" v-if="isText && !inputActive">{{html}}</div>
-      <div style="width:100%;height:100%" class="htmlHolder" v-else-if="!inputActive" v-html="html"></div>
-    </div>
-    <div v-if="type == 'LuckySheet'" style="width:100%;height:100%">
-      <div :id="'sheet'+idBlock" style="margin:0px;padding:0px;position:absolute;width:100%;height:100%;left: 0px;top: 0px;"></div>
-    </div>
-    <div v-if="type == 'JScode'" style="width:100%;height:100%">
-      <textarea :id="'js'+idBlock" style="width:100%;height:20%"/>
-      <button @click="runCode">RUN</button>
-      <div v-html="jsReturn" />
+    <div v-html="html">
+      
     </div>
   </div>
 </template>
 
 <script>
+import CodeText from '@/components/CodeText'
+/*
+<!--
+      <div style="width:100%;height:100%" v-if="inputActive" v-html="html"></div>
+      <div style="width:100%;height:100%;white-space: pre-wrap;" v-if="isText && !inputActive">{{html}}</div>
+      <div style="width:100%;height:100%" class="htmlHolder" v-else-if="!inputActive" v-html="html"></div>
+      -->
+*/
 import LuckyExcel from 'luckyexcel'
 import { matchesSelectorToParentElements, getComputedSize, addEvent, removeEvent } from '../utils/dom'
 import { computeWidth, computeHeight, restrictToBounds, snapToGrid } from '../utils/fns'
@@ -73,8 +71,10 @@ const userSelectAuto = {
 let eventsFor = events.mouse
 
 export default {
-  replace: true,
-  name: 'vue-draggable-resizable',
+  // replace: true,
+  components: {
+    CodeText,
+  },
   props: {
     className: {
       type: String,
@@ -251,6 +251,9 @@ export default {
     type: {
       type: String,
     },
+    htmlInput: {
+      type: String,
+    },
   },
 
   data () {
@@ -342,6 +345,12 @@ export default {
     addEvent(document.documentElement, 'touchend touchcancel', this.deselect)
 
     addEvent(window, 'resize', this.checkParentSize)
+
+    console['log'] = (arg) => {
+      this.jsReturn += JSON.stringify(arg)
+    }
+
+    this.html = this.htmlInput;
   },
   beforeUpdate(){
     if(this.type == 'LuckySheet' && !this.sheetIsLoad){
@@ -485,7 +494,7 @@ export default {
         removeEvent(document.documentElement, eventsFor.move, this.handleResize)
 
         //Grizzly code
-        this.showHtml()
+        //this.showHtml()
       }
 
       this.resetBoundsAndMouseState()
@@ -835,6 +844,7 @@ export default {
       removeEvent(document.documentElement, eventsFor.move, this.handleResize)
     },
     // GRIZZLY CODE
+    /*
     buttonPress () {
       if (this.inputActive) {
         this.inputActive = false
@@ -872,11 +882,7 @@ export default {
         setTimeout(() => {this.$emit('showDelete', false)}, 100)
       }
     },
-    runCode() {
-      let input = document.getElementById('js'+this.idBlock).value
-      let ret = eval(input)
-      this.jsReturn = ret
-    },
+    */
     createSheet(){
       let id = this.$parent.nextId;
       var options = {
