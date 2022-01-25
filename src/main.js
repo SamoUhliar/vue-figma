@@ -2,6 +2,10 @@ import { createApp } from 'vue'
 import { IonicVue } from '@ionic/vue';
 import * as IonComponents from '@ionic/vue';
 import App from './App.vue'
+import { defineCustomElement } from 'vue'
+import JsCode from './components/JsCode'
+import LuckySheet from './components/LuckySheet'
+
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/vue/css/core.css';
@@ -15,6 +19,7 @@ import '@ionic/vue/css/typography.css';
 import '@ionic/vue/css/padding.css';
 import '@ionic/vue/css/float-elements.css';
 import '@ionic/vue/css/text-alignment.css';
+
 import '@ionic/vue/css/text-transformation.css';
 import '@ionic/vue/css/flex-utils.css';
 import '@ionic/vue/css/display.css';
@@ -22,6 +27,11 @@ import '@ionic/vue/css/display.css';
 /* Theme variables */
 import './vendor/variables.css';
 
+const MyCode = defineCustomElement(JsCode)
+const MyLuckySheet = defineCustomElement(LuckySheet)
+
+customElements.define('code-js', MyCode)
+customElements.define('lucky-sheet', MyLuckySheet)
 
 const app = createApp(App).use(IonicVue).mount('#app')
 
@@ -32,3 +42,5 @@ Object.keys(IonComponents).forEach(key => {
         app.component(key, IonComponents[key]);
     }
 });
+
+

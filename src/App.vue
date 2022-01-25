@@ -2,9 +2,10 @@
   <div>
     <div class="toolBar">
       <button @click="deleteElement" v-if="showDelete == true">X</button>
-      <button @click="addBlock('<code></code>')">html/text</button>
-      <button @click="addBlock('<LuckySheet/>')">LuckySheet</button>
-      <button @click="addBlock('<code/>')">JS</button>
+      <button @click="addBlock('<ion-button>👋</ion-button>')">html</button>
+      <button @click="addBlock('Ahoj Psycho 👋')">text</button>
+      <button @click="addBlock('<lucky-sheet><lucky-sheet/>')">LuckySheet</button>
+      <button @click="addBlock('<code-js></code-js>')">JS</button>
     </div>
     <div id="canvas" style="position: relative;">
       <vue-draggable-resizable class="element" @showDelete="updateparent" :w="400" :h="400" :parent="false" :htmlInput="i.type" :id="i.id" :idElement="i.id" :handles="['tr','tl','br','bl']" v-for="i in blocks" :key="i.id"/>
@@ -13,7 +14,6 @@
 </template>
 
 <script>
-import CodeText from '@/components/CodeText'
 import VueDraggableResizable from './vendor/vue-draggable-resizable'
 import './vendor/vue-draggable-resizable.css'
 import './themes/main.css'
@@ -22,7 +22,6 @@ export default {
   name: 'app',
   components: {
     VueDraggableResizable,
-    CodeText,
   },
   data() {
     return {
