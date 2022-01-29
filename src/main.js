@@ -4,7 +4,7 @@ import * as IonComponents from '@ionic/vue';
 import App from './App.vue'
 import { defineCustomElement } from 'vue'
 import JsCode from './components/JsCode'
-import LuckySheet from './components/LuckySheet'
+import LuckySheet from './components/HelloWorld'
 
 
 /* Core CSS required for Ionic components to work properly */
@@ -34,7 +34,6 @@ customElements.define('code-js', MyCode)
 customElements.define('lucky-sheet', MyLuckySheet)
 
 const app = createApp(App).use(IonicVue).mount('#app')
-
 
 
 Object.keys(IonComponents).forEach(key => {

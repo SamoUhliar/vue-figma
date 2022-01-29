@@ -7,9 +7,11 @@
       [classNameResizing]: resizing,
       [classNameDraggable]: draggable,
       [classNameResizable]: resizable
-    }, className]"
+    }, className,
+    ]"
     @mousedown="elementMouseDown"
     @touchstart="elementTouchDown"
+    @dblclick="buttonPress"
   >
     <div
       v-for="handle in actualHandles"
@@ -19,9 +21,10 @@
       @mousedown.stop.prevent="handleDown(handle, $event)"
       @touchstart.stop.prevent="handleTouchDown(handle, $event)"
     >
-      <slot :name="handle"></slot>
     </div>
-    <slot></slot>
+    <div style="width:100%;height:100%" v-if="inputActive" v-html="html"></div>
+    <div style="width:100%;height:100%;white-space: pre-wrap;" v-if="isText && !inputActive">{{html}}</div>
+    <div style="width:100%;height:100%" class="htmlHolder" v-else-if="!inputActive" v-html="html"></div>
   </div>
 </template>
 
@@ -59,8 +62,6 @@ const userSelectAuto = {
 let eventsFor = events.mouse
 
 export default {
-  replace: true,
-  name: 'vue-draggable-resizable',
   props: {
     className: {
       type: String,
@@ -229,10 +230,20 @@ export default {
     onResize: {
       type: Function,
       default: () => true
-    }
+    },
+    //Grizzly Code
+    idElement: {
+      type: Number,
+    },
+    type: {
+      type: String,
+    },
+    htmlInput: {
+      type: String,
+    },
   },
 
-  data: function () {
+  data () {
     return {
       left: this.x,
       top: this.y,
@@ -256,7 +267,20 @@ export default {
       dragging: false,
       dragEnable: false,
       resizeEnable: false,
-      zIndex: this.z
+      zIndex: this.z,
+
+      /*
+      * GRIZZLY CODE
+      */
+
+      html: '',
+      inputActive: false,
+      isText: false,
+      selected:"",
+      isMaskShow: false,
+      idBlock: 0, 
+      jsReturn: undefined,
+      sheetIsLoad: false,
     }
   },
 
@@ -267,6 +291,8 @@ export default {
     if (this.maxHeight && this.minHeight > this.maxHeight) console.warn('[Vdr warn]: Invalid prop: minHeight cannot be greater than maxHeight')
 
     this.resetBoundsAndMouseState()
+
+    this.idBlock = this.$parent.nextId;
   },
   mounted: function () {
     if (!this.enableNativeDrag) {
@@ -296,8 +322,20 @@ export default {
     addEvent(document.documentElement, 'touchend touchcancel', this.deselect)
 
     addEvent(window, 'resize', this.checkParentSize)
+
+    console['log'] = (arg) => {
+      this.jsReturn += JSON.stringify(arg)
+    }
+
+    this.html = this.htmlInput;
+    if(this.html[0] != '<'){
+      this.isText = true
+    }else{
+      this.isText = false
+    }
+    
   },
-  beforeDestroy: function () {
+  beforeUnmount: function () {
     removeEvent(document.documentElement, 'mousedown', this.deselect)
     removeEvent(document.documentElement, 'touchstart', this.handleUp)
     removeEvent(document.documentElement, 'mousemove', this.move)
@@ -336,13 +374,13 @@ export default {
     getParentSize () {
       if (this.parent) {
         const style = window.getComputedStyle(this.$el.parentNode, null)
-
+          console.log(parseInt(style.getPropertyValue('width'), 10))
+          console.log(parseInt(style.getPropertyValue('height'), 10))
         return [
           parseInt(style.getPropertyValue('width'), 10),
           parseInt(style.getPropertyValue('height'), 10)
         ]
       }
-
       return [null, null]
     },
     elementTouchDown (e) {
@@ -401,6 +439,9 @@ export default {
 
         addEvent(document.documentElement, eventsFor.move, this.move)
         addEvent(document.documentElement, eventsFor.stop, this.handleUp)
+
+        localStorage.selected = this.idElement
+        this.$emit('showDelete', true)
       }
     },
     calcDragLimits () {
@@ -428,6 +469,9 @@ export default {
         }
 
         removeEvent(document.documentElement, eventsFor.move, this.handleResize)
+
+        //Grizzly code
+        //this.showHtml()
       }
 
       this.resetBoundsAndMouseState()
@@ -714,7 +758,7 @@ export default {
       // should calculate with scale 1.
       const [newWidth, _] = snapToGrid(this.grid, val, 0, 1)
 
-      let right = restrictToBounds(
+      const right = restrictToBounds(
         (this.parentWidth - newWidth - this.left),
         this.bounds.minRight,
         this.bounds.maxRight
@@ -737,7 +781,7 @@ export default {
       // should calculate with scale 1.
       const [_, newHeight] = snapToGrid(this.grid, 0, val, 1)
 
-      let bottom = restrictToBounds(
+      const bottom = restrictToBounds(
         (this.parentHeight - newHeight - this.top),
         this.bounds.minBottom,
         this.bounds.maxBottom
@@ -775,7 +819,45 @@ export default {
       }
 
       removeEvent(document.documentElement, eventsFor.move, this.handleResize)
-    }
+    },
+    // GRIZZLY CODE
+    buttonPress () {
+      if (this.inputActive) {
+        this.inputActive = false
+        this.showHtml()
+      } else {
+        this.inputActive = true
+        this.showInput()
+      }
+    },
+    showInput () {
+      let before = ''
+      if(!this.isText){
+        before = '='
+        console.log(this.isText)
+      }
+      this.html = '<textarea id="input'+ this.idElement +'" style="width: 100%;height: 100%;resize: none;" >' + before + this.html + '</textarea>'
+    },
+    showHtml () {
+      if(localStorage.selected == this.idElement){
+        var input = document.getElementById('input'+this.idElement)
+        var ret = null
+
+        if(input != null) {
+          ret = input.value
+          this.isText = true
+
+          if(ret.charAt(0) == '=') {
+            ret = ret.substring(1)
+            console.log('lol')
+            this.isText = false
+          }
+          this.html = ret
+        }
+
+        setTimeout(() => {this.$emit('showDelete', false)}, 100)
+      }
+    },
   },
   computed: {
     style () {
@@ -899,6 +981,16 @@ export default {
 
       this.changeHeight(val)
     }
-  }
+  },
 }
 </script>
+<style>
+  h1{
+    padding: 0;
+    margin: 0px;
+  }
+  .htmlHolder{
+    width: 100%;
+    height: 100%;
+  }
+</style>

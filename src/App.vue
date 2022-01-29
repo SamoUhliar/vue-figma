@@ -8,20 +8,32 @@
       <button @click="addBlock('<code-js></code-js>')">JS</button>
     </div>
     <div id="canvas" style="position: relative;">
-      <vue-draggable-resizable class="element" @showDelete="updateparent" :w="400" :h="400" :parent="false" :htmlInput="i.type" :id="i.id" :idElement="i.id" :handles="['tr','tl','br','bl']" v-for="i in blocks" :key="i.id"/>
+      <my-draggable-resizable class="element" @showDelete="updateparent" :w="400" :h="400" :parent="false" :htmlInput="i.type" :id="i.id" :idElement="i.id" :handles="['tr','tl','br','bl']" v-for="i in blocks" :key="i.id"/>
+      <vue-draggable-resizable :w="800" :h="500" :parent="false">
+        <HelloWorld :idd='1'/>
+      </vue-draggable-resizable>
+      <!-- <vue-draggable-resizable :w="800" :h="500" :parent="false">
+        <HelloWorld :idd='2'/>
+      </vue-draggable-resizable> -->
     </div>
   </div>
 </template>
 
 <script>
+import HelloWorld from './components/HelloWorld.vue'
+
+import MyDraggableResizable from './vendor/my-draggable-resizable'
 import VueDraggableResizable from './vendor/vue-draggable-resizable'
+import './vendor/my-draggable-resizable.css'
 import './vendor/vue-draggable-resizable.css'
 import './themes/main.css'
 
 export default {
   name: 'app',
   components: {
+    MyDraggableResizable,
     VueDraggableResizable,
+    HelloWorld
   },
   data() {
     return {
