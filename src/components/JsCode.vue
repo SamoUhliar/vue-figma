@@ -2,7 +2,7 @@
     <div style="width:100%;height:100%">
         <input v-model="input">
         <button @click="evalx">eval</button>
-        <div id="error"></div>
+        <div>{{output}}</div>
     </div>
 </template>
 <script>
@@ -15,16 +15,31 @@ export default {
         }
     },
     mounted(){
-        window.console.error = function(x){
-            this.output=x
-        }
+        (function () {
+            console.log = function (message) {
+                if (typeof message == 'object') {
+                    this.output += (JSON && JSON.stringify ? JSON.stringify(message) : message) + '<br />';
+                } else {
+                    this.output += message + '<br />';
+                }
+            }
+        })();
     },
     methods: {
-        evalx(){
-            
-            this.output=eval(this.input);
+        evalx(){ 
+            try {
+                console.oldLog = console.log;
+                console.log = function(value)
+                {
+                    console.oldLog(value);
+                    return value;
+                };
 
-            
+                this.output = eval(this.input); 
+                 console.warn(this.output)
+            } catch (e) {    
+                this.output = e.message;
+            }
         }
     }
 
